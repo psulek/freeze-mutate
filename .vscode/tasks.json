@@ -1,25 +1,28 @@
 {
-    "version": "0.1.0",
+    "version": "2.0.0",
     "command": "npm",
-    "isShellCommand": true,
-    "suppressTaskName": true,
     "tasks": [
         {
-            "taskName": "build",
-            "showOutput": "never",
+            "label": "build",
+            "type": "shell",
             "args": [
                 "run",
                 "build"
             ],
-            "isBuildCommand": true
+            "problemMatcher": [],
+            "group": {
+                "_id": "build",
+                "isDefault": false
+            }
         },
         {
-            "taskName": "debugBuild",
-            "showOutput": "never",
+            "label": "debugBuild",
+            "type": "shell",
             "args": [
                 "run",
                 "build:debug"
-            ]
+            ],
+            "problemMatcher": []
         }
     ]
 }

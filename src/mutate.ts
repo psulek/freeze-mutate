@@ -8,7 +8,7 @@
 /* eslint-disable @typescript-eslint/no-use-before-define */
 
 const cycleDetector = new Set<unknown>();
-
+const bigIntSupported = typeof BigInt !== "undefined";
 
 const neverFunc = (_nop: unknown) => { throw new Error("Immutable object cannot be changed"); };
 
@@ -87,9 +87,15 @@ function copyDeep(first: object, second?: object): object {
 
   // primitives and primitive-wrappers we override (copy-over)
   // other objects need deep-copying
-  if (!firstIsObject || [Date, Number, String, Boolean, BigInt].indexOf(Object(first).constructor) >= 0) {
-    rc = copyVal(second);
+  let copyByVal;
+  if (bigIntSupported) {
+    copyByVal = !firstIsObject || [Date, Number, String, Boolean, BigInt].indexOf(Object(first).constructor) >= 0;
+  } else {
+    copyByVal = !firstIsObject || [Date, Number, String, Boolean].indexOf(Object(first).constructor) >= 0;
+  }
 
+  if (copyByVal) {
+    rc = copyVal(second);
   } else {
     // create a new object and copy the frozen first into it then copy the second ontop.
     // we don't call copyParam here, so that rc does not get frozen and can be merged.
@@ -106,7 +112,7 @@ function copyDeep(first: object, second?: object): object {
 
 
 function arrConcat(items: []): [] {
-  const arr = (Array.isArray(items)) ? items : [items];
+  const arr:unknown[] = items === undefined ? [] : (Array.isArray(items)) ? items : [items];
   const rc: any = [];
   this.forEach((val: any) => rc.push(copyVal(val)));
   arr.forEach((val: any) => rc.push(copyVal(val)));
@@ -252,7 +258,7 @@ function copyVal(param: any): any {
     rc = String(param.valueOf());
   } else if (param instanceof Number) {
     rc = Number(param.valueOf());
-  } else if (param instanceof BigInt) {
+  } else if (bigIntSupported && param instanceof BigInt) {
     rc = BigInt(param.valueOf());
   } else if (param instanceof Boolean) {
     rc = Boolean(param.valueOf());
